@@ -6,6 +6,11 @@
     .mentionable-dropdown ul li.focused {
       background-color: gray;
     }
+
+    .mentionable-dropdown .profile-image {
+      width: 50px;
+      height: 50px;
+    }
     </style>
     <script>
     var Mentionable = function(element, callback) {
@@ -33,7 +38,16 @@
           var ul = self.dropDown.find("ul");
           ul.empty();
           for (i = 0; i < results.length; i++) {
-            ul.append($("<li>"+results[i].name+"</li>"));
+            var li = $("<li></li>");
+            if (results[i].image !== undefined) {
+              var img = $("<img>");
+              img.attr("class", "profile-image");
+              img.attr("src", results[i].image);
+              img.attr("alt", results[i].name);
+              li.append(img);
+            }
+            li.append("<span class='name'>"+results[i].name+"</span>");
+            ul.append(li);
           }
           self.reshowHighlightedItem();
         }
@@ -64,7 +78,7 @@
         var atIndex = element.val().slice(0, caretStart).lastIndexOf("@");
         var first = element.val().slice(0, atIndex + 1);
         var last = element.val().slice(atIndex + self.currentCompletion().length + 1);
-        var text = first + currentItem.text() + last;
+        var text = first + currentItem.find(".name").text() + last;
         element.val(text + " ");
         console.log(text);
       };
@@ -134,7 +148,7 @@
               callback([
                 {name: "AndrewVos", image: image},
                 {name: "Paul", image: image},
-                {name: "Artem", image: image},
+                {name: "Artem"},
                 {name: "Alec", image: image},
                 {name: "Simon", image: image}
               ]);
