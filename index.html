@@ -37,7 +37,15 @@
           $("body").append(self.dropDown);
           var ul = self.dropDown.find("ul");
           ul.empty();
+          self.dropDownSelectedIndex = null;
+
           for (i = 0; i < results.length; i++) {
+            if (self.dropDownSelectedIndex === null) {
+              if (results[i].name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+                self.dropDownSelectedIndex = i;
+              }
+            }
+
             var li = $("<li></li>");
             if (results[i].image !== undefined) {
               var img = $("<img>");
@@ -48,6 +56,9 @@
             }
             li.append("<span class='name'>"+results[i].name+"</span>");
             ul.append(li);
+          }
+          if (self.dropDownSelectedIndex === null) {
+            self.dropDownSelectedIndex = 0;
           }
           self.reshowHighlightedItem();
         }
@@ -69,6 +80,7 @@
       this.moveSelectionUp = function() {
         if (self.dropDownSelectedIndex !== 0) {
           self.dropDownSelectedIndex -= 1;
+          self.reshowHighlightedItem();
         }
       };
 
@@ -80,7 +92,7 @@
         var last = element.val().slice(atIndex + self.currentCompletion().length + 1);
         var text = first + currentItem.find(".name").text() + last;
         element.val(text + " ");
-        console.log(text);
+        self.hideDropDown();
       };
 
       this.hideDropDown = function() {
@@ -118,6 +130,9 @@
       };
 
       element.on("keyup", function(event) {
+          if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
+            return;
+          }
           var completion = self.currentCompletion();
           if (completion !== null) {
             callback(completion, function(results) {
