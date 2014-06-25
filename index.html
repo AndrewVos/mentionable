@@ -61,12 +61,12 @@
             var li = $("<li></li>");
             if (results[i].image !== undefined) {
               var img = $("<img>");
-              img.attr("class", "profile-image");
+              img.attr("class", "mentionable-user-avatar");
               img.attr("src", results[i].image);
               img.attr("alt", results[i].name);
               li.append(img);
             }
-            li.append("<span class='name'>"+results[i].name+"</span>");
+            li.append("<p class='mentionable-user-name'>"+results[i].name+"</p>");
             ul.append(li);
           }
           if (self.dropDownSelectedIndex === null) {
@@ -102,7 +102,7 @@
         var atIndex = element.val().slice(0, caretStart).lastIndexOf("@");
         var first = element.val().slice(0, atIndex + 1);
         var last = element.val().slice(atIndex + self.currentCompletion().length + 1);
-        var text = first + currentItem.find(".name").text() + last;
+        var text = first + currentItem.find(".mentionable-user-name").text() + last;
         element.val(text + " ");
         self.hideDropDown();
       };
