@@ -19,6 +19,7 @@ var Mentionable = function(element, callback) {
   this.showDropDown = function(query, results) {
     if (results.length > 0) {
       self.dropDown.width(element.outerWidth());
+      self.dropDown.css("left", element.offset().left);
       self.dropDown.css("top", element.offset().top + element.outerHeight());
       self.dropDown.show();
 
