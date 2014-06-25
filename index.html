@@ -1,17 +1,29 @@
 <!doctype html>
 <html>
   <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <style>
-    .mentionable-dropdown ul li.focused {
-      background-color: gray;
-    }
-
-    .mentionable-dropdown .profile-image {
-      width: 50px;
-      height: 50px;
-    }
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/necolas/normalize.css/master/normalize.css">
+    <style type="text/css">
+      html {
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+      }
     </style>
+    <link rel="stylesheet" href="mentionable.css">
+  </head>
+  <body>
+    <h1>mentionable</h1>
+
+    <h2>Requirements</h2>
+    <ul>
+      <li>jQuery</li>
+    </ul>
+
+    <h2>Example</h2>
+    <textarea id="mentionable-example"></textarea>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
     var Mentionable = function(element, callback) {
       element = $(element);
@@ -144,17 +156,6 @@
       });
     }
     </script>
-  </head>
-  <body>
-    <h1>mentionable</h1>
-
-    <h2>Requirements</h2>
-    <ul>
-      <li>jQuery</li>
-    </ul>
-
-    <h2>Example</h2>
-    <textarea id="mentionable-example"></textarea>
     <script>
       $(function() {
           var image = "https://pbs.twimg.com/profile_images/451501345455874048/BkSSD7h3_400x400.jpeg";

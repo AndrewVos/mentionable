@@ -1,0 +1,38 @@
+/*
+* Mentionable
+*/
+
+.mentionable {}
+
+.mentionable-dropdown {
+  border: 1px solid #999;
+}
+
+.mentionable-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.mentionable-dropdown li {
+  height: 30px;
+  border-bottom: 1px solid #999;
+}
+
+.mentionable-dropdown li:last-child {
+  border-bottom: 0;
+}
+
+.mentionable-dropdown .focused {
+  color: #fff;
+  background-color: #00b8e7;
+}
+
+.mentionable-dropdown .profile-image {
+  width: 30px;
+  height: 30px;
+  float: left;
+  margin-right: 5px;
+}
+
+.mentionable-dropdown .name {}
