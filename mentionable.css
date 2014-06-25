@@ -1,0 +1,45 @@
+/*
+* Mentionable
+*/
+
+.mentionable {}
+
+.mentionable-dropdown {
+  border: 1px solid #ddd;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.mentionable-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.mentionable-dropdown li {
+  height: 35px;
+  border-bottom: 1px solid #ddd;
+}
+
+.mentionable-dropdown li:last-child {
+  border-bottom: 0;
+}
+
+.mentionable-dropdown .focused {
+  color: #fff;
+  background-color: #00b8e7;
+}
+
+.mentionable-user-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 3px;
+  float: left;
+  margin: 5px 0 5px 5px;
+}
+
+.mentionable-user-name {
+  font-size: 13px;
+  float: left;
+  margin: 0;
+  padding: 9px 0 0 7px;
+}
