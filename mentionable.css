@@ -1,4 +1,8 @@
 .mentionable-dropdown {
+  font-size: 12px;
+  padding-top: 0;
+  margin-top: 0;
+  position: absolute;
   border: 1px solid #999;
 }
 
@@ -10,6 +14,7 @@
 
 .mentionable-dropdown li {
   height: 30px;
+  line-height: 30px;
   border-bottom: 1px solid #999;
 }
 
