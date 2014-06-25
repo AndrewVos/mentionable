@@ -7,6 +7,7 @@
 }
 
 .mentionable-dropdown ul {
+  background-color: white;
   list-style: none;
   margin: 0;
   padding-left: 0;
