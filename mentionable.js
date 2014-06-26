@@ -1,8 +1,7 @@
-var Mentionable = function(element, callback) {
-  element = $(element);
+var Mentionable = function(selector, callback) {
   self = this;
 
-  this.getCaretPosition = function() {
+  this.getCaretPosition = function(element) {
     if (typeof element.selectionStart !== 'undefined') {
       return element.selectionStart;
     } else if (document.selection) {
@@ -16,7 +15,7 @@ var Mentionable = function(element, callback) {
   this.dropDown = $("<div class='mentionable-dropdown'><ul></ul></div>");
   this.dropDownSelectedIndex = 0;
 
-  this.showDropDown = function(query, results) {
+  this.showDropDown = function(element, query, results) {
     if (results.length > 0) {
       self.dropDown.width(element.outerWidth());
       self.dropDown.css("left", element.offset().left);
@@ -73,12 +72,12 @@ var Mentionable = function(element, callback) {
     }
   };
 
-  this.completeCurrentItem = function() {
+  this.completeCurrentItem = function(element) {
     var currentItem = $(self.dropDown.find("li.focused")[0]);
     var caretStart = self.getCaretPosition(element);
     var atIndex = element.val().slice(0, caretStart).lastIndexOf("@");
     var first = element.val().slice(0, atIndex + 1);
-    var last = element.val().slice(atIndex + self.currentCompletion().length + 1);
+    var last = element.val().slice(atIndex + self.currentCompletion(element).length + 1);
     var text = first + currentItem.find(".name").text() + last;
     element.val(text + " ");
     self.hideDropDown();
@@ -92,12 +91,13 @@ var Mentionable = function(element, callback) {
     return self.dropDown.is(":visible");
   };
 
-  element.on("keydown", function(event) {
+  $(document).on("keydown", selector, function(event) {
+    var element = $(event.target);
     if (self.dropDownVisible() == false) {
       return;
     }
     if (event.keyCode == 13 || event.keyCode == 9) {
-      self.completeCurrentItem();
+      self.completeCurrentItem(element);
       return false;
     } else if (event.keyCode == 38) {
       self.moveSelectionUp();
@@ -108,7 +108,7 @@ var Mentionable = function(element, callback) {
     }
   });
 
-  self.currentCompletion = function() {
+  self.currentCompletion = function(element) {
     var caretStart = self.getCaretPosition(element);
     var query = element.val().slice(0, caretStart);
     var matches = query.match(/@[^ ]*$/);
@@ -118,14 +118,16 @@ var Mentionable = function(element, callback) {
     return null;
   };
 
-  element.on("keyup", function(event) {
+
+  $(document).on("keyup", selector, function(event) {
+    var element = $(event.target);
     if (event.keyCode == 13 || event.keyCode == 9 || event.keyCode == 38 || event.keyCode == 40) {
       return;
     }
-    var completion = self.currentCompletion();
+    var completion = self.currentCompletion(element);
     if (completion !== null) {
       callback(completion, function(results) {
-        self.showDropDown(completion, results);
+        self.showDropDown(element, completion, results);
       });
     } else {
       self.hideDropDown();
