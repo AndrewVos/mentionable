@@ -35,6 +35,16 @@ var Mentionable = function(selector, callback) {
         }
 
         var li = $("<li></li>");
+        li.click(function() {
+          element.focus();
+          self.completeCurrentItem(element);
+        });
+
+        li.on("mouseenter", function() {
+          self.dropDownSelectedIndex = $(this).index();
+          self.reshowHighlightedItem();
+        });
+
         if (results[i].image !== undefined) {
           var img = $("<img>");
           img.attr("class", "profile-image");
