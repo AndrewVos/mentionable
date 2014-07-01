@@ -134,6 +134,9 @@ var Mentionable = function(selector, callback) {
     if (event.keyCode == 13 || event.keyCode == 9 || event.keyCode == 38 || event.keyCode == 40) {
       return;
     }
+    if (event.keyCode == 27 && self.dropDownVisible()) {
+      return self.hideDropDown();
+    }
     var completion = self.currentCompletion(element);
     if (completion !== null) {
       callback(completion, function(results) {
