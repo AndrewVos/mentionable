@@ -1,41 +1,70 @@
-var Mentionable = function(selector, callback) {
-  self = this;
+!function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    factory(require('jquery'));
+  } else {
+    factory(root.jQuery);
+  }
+}(this, function($) {
+  'use strict';
 
-  this.getCaretPosition = function(element) {
-    if (typeof element.selectionStart !== 'undefined') {
-      return element.selectionStart;
-    } else if (document.selection) {
-      var range = document.selection.createRange();
-      var rangeLength = range.text.length;
-      range.moveStart('character', -element.value.length);
-      return range.text.length - rangeLength;
-    }
+  var defaults = {
+    onSearch: $.noop,
+    selector: null
   };
 
-  this.dropDown = $("<div class='mentionable-dropdown'><ul></ul></div>");
-  this.dropDownSelectedIndex = 0;
+  var Mentionable = function(element, options) {
+    this.element = element;
+    this.options = options;
+    this.dropDown = $("<div class='mentionable-dropdown'><ul></ul></div>");
+    this.dropDownSelectedIndex = 0;
 
-  this.showDropDown = function(element, query, results) {
-    if (results.length > 0) {
-      self.dropDown.width(element.outerWidth());
-      self.dropDown.css("left", element.offset().left);
-      self.dropDown.css("top", element.offset().top + element.outerHeight());
-      self.dropDown.show();
+    this.attachEvents();
+  };
 
-      $("body").append(self.dropDown);
-      var ul = self.dropDown.find("ul");
+  Mentionable.prototype = {
+    constructor: Mentionable,
+
+    getCaretPosition: function(element) {
+      if (typeof element.selectionStart !== 'undefined') {
+        return element.selectionStart;
+      } else if (document.selection) {
+        var range = document.selection.createRange();
+        var rangeLength = range.text.length;
+        range.moveStart('character', -element.value.length);
+        return range.text.length - rangeLength;
+      }
+    },
+
+    showDropDown: function(element, query, results) {
+      if (results.length == 0) {
+        return;
+      }
+
+      this.dropDown.width(element.outerWidth());
+      this.dropDown.css({
+        left: element.offset().left,
+        top: element.offset().top + element.outerHeight()
+      });
+      this.dropDown.show();
+
+      $("body").append(this.dropDown);
+      var ul = this.dropDown.find("ul");
       ul.empty();
-      self.dropDownSelectedIndex = null;
+      this.dropDownSelectedIndex = null;
 
-      for (i = 0; i < results.length; i++) {
-        if (self.dropDownSelectedIndex === null) {
-          if (results[i].name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-            self.dropDownSelectedIndex = i;
+      $.each(results, function(index, result) {
+        var self = this;
+
+        if (this.dropDownSelectedIndex === null) {
+          if (result.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+            this.dropDownSelectedIndex = index;
           }
         }
 
         var li = $("<li></li>");
-        li.click(function() {
+        li.on('click', function() {
           element.focus();
           self.completeCurrentItem(element);
         });
@@ -45,102 +74,123 @@ var Mentionable = function(selector, callback) {
           self.reshowHighlightedItem();
         });
 
-        if (results[i].image !== undefined) {
-          var img = $("<img>");
-          img.attr("class", "profile-image");
-          img.attr("src", results[i].image);
-          img.attr("alt", results[i].name);
+        if (result.image !== undefined) {
+          var img = $("<img>", {
+            'class': 'profile-image',
+            'src': result.image,
+            'alt': result.name
+          });
           li.append(img);
         }
-        li.append("<span class='name'>"+results[i].name+"</span>");
+        li.append("<span class='name'>" + result.name + "</span>");
         ul.append(li);
+      }.bind(this));
+
+      if (this.dropDownSelectedIndex === null) {
+        this.dropDownSelectedIndex = 0;
       }
-      if (self.dropDownSelectedIndex === null) {
-        self.dropDownSelectedIndex = 0;
+      this.reshowHighlightedItem();
+    },
+
+    reshowHighlightedItem: function() {
+      this.dropDown.find("li").removeClass("focused");
+      var selected = $(this.dropDown.find("li")[this.dropDownSelectedIndex]);
+      selected.addClass("focused");
+    },
+
+    moveSelectionDown: function() {
+      if (this.dropDownSelectedIndex !== this.dropDown.find("li").length - 1) {
+        this.dropDownSelectedIndex += 1;
+        this.reshowHighlightedItem();
       }
-      self.reshowHighlightedItem();
-    }
-  };
+    },
 
-  this.reshowHighlightedItem = function() {
-    self.dropDown.find("li").removeClass("focused");
-    var selected = $(self.dropDown.find("li")[self.dropDownSelectedIndex]);
-    selected.addClass("focused");
-  };
+    moveSelectionUp: function() {
+      if (this.dropDownSelectedIndex !== 0) {
+        this.dropDownSelectedIndex -= 1;
+        this.reshowHighlightedItem();
+      }
+    },
 
-  this.moveSelectionDown = function() {
-    if (self.dropDownSelectedIndex !== self.dropDown.find("li").length -1) {
-      self.dropDownSelectedIndex += 1;
-      self.reshowHighlightedItem();
-    }
-  };
+    completeCurrentItem: function(element) {
+      var currentItem = $(this.dropDown.find("li.focused")[0]);
+      var caretStart = this.getCaretPosition(element);
+      var atIndex = element.val().slice(0, caretStart).lastIndexOf("@");
+      var first = element.val().slice(0, atIndex + 1);
+      var last = element.val().slice(atIndex + this.currentCompletion(element).length + 1);
+      var text = first + currentItem.find(".name").text() + last;
+      element.val(text + " ");
+      this.hideDropDown();
+    },
 
-  this.moveSelectionUp = function() {
-    if (self.dropDownSelectedIndex !== 0) {
-      self.dropDownSelectedIndex -= 1;
-      self.reshowHighlightedItem();
-    }
-  };
+    currentCompletion: function(element) {
+      var caretStart = this.getCaretPosition(element);
+      var query = element.val().slice(0, caretStart);
+      var matches = query.match(/@[^ ]*$/);
+      if (matches !== null) {
+        return matches[0].slice(1);
+      }
+      return null;
+    },
 
-  this.completeCurrentItem = function(element) {
-    var currentItem = $(self.dropDown.find("li.focused")[0]);
-    var caretStart = self.getCaretPosition(element);
-    var atIndex = element.val().slice(0, caretStart).lastIndexOf("@");
-    var first = element.val().slice(0, atIndex + 1);
-    var last = element.val().slice(atIndex + self.currentCompletion(element).length + 1);
-    var text = first + currentItem.find(".name").text() + last;
-    element.val(text + " ");
-    self.hideDropDown();
-  };
+    hideDropDown: function() {
+      this.dropDown.hide();
+    },
 
-  this.hideDropDown = function() {
-    self.dropDown.hide();
-  };
+    dropDownVisible: function() {
+      return this.dropDown.is(":visible");
+    },
 
-  this.dropDownVisible = function() {
-    return self.dropDown.is(":visible");
-  };
+    attachEvents: function() {
+      var self = this;
 
-  $(document).on("keydown", selector, function(event) {
-    var element = $(event.target);
-    if (self.dropDownVisible() == false) {
-      return;
-    }
-    if (event.keyCode == 13 || event.keyCode == 9) {
-      self.completeCurrentItem(element);
-      return false;
-    } else if (event.keyCode == 38) {
-      self.moveSelectionUp();
-      return false;
-    } else if (event.keyCode == 40) {
-      self.moveSelectionDown();
-      return false;
-    }
-  });
-
-  self.currentCompletion = function(element) {
-    var caretStart = self.getCaretPosition(element);
-    var query = element.val().slice(0, caretStart);
-    var matches = query.match(/@[^ ]*$/);
-    if (matches !== null) {
-      return matches[0].slice(1);
-    }
-    return null;
-  };
-
-
-  $(document).on("keyup", selector, function(event) {
-    var element = $(event.target);
-    if (event.keyCode == 13 || event.keyCode == 9 || event.keyCode == 38 || event.keyCode == 40) {
-      return;
-    }
-    var completion = self.currentCompletion(element);
-    if (completion !== null) {
-      callback(completion, function(results) {
-        self.showDropDown(element, completion, results);
+      $(document).on("keydown", this.options.selector, function(event) {
+        var element = $(event.target);
+        if (self.dropDownVisible() == false) {
+          return;
+        }
+        if (event.keyCode == 13 || event.keyCode == 9) {
+          self.completeCurrentItem(element);
+          return false;
+        } else if (event.keyCode == 38) {
+          self.moveSelectionUp();
+          return false;
+        } else if (event.keyCode == 40) {
+          self.moveSelectionDown();
+          return false;
+        }
       });
-    } else {
-      self.hideDropDown();
+
+      $(document).on("keyup", this.options.selector, function(event) {
+        var element = $(event.target);
+        if (event.keyCode == 13 || event.keyCode == 9 || event.keyCode == 38 || event.keyCode == 40) {
+          return;
+        }
+        if (event.keyCode == 27 && self.dropDownVisible()) {
+          return self.hideDropDown();
+        }
+        var completion = self.currentCompletion(element);
+        if (completion !== null) {
+          self.options.onSearch(completion, function(results) {
+            self.showDropDown(element, completion, results);
+          });
+        } else {
+          self.hideDropDown();
+        }
+      });
     }
-  });
-}
+
+  };
+
+  $.fn.mentionable = function(options) {
+    options = $.extend(true, {}, defaults, options);
+
+    return this.each(function() {
+      var $this = $(this);
+      $this.data('mentionable', new Mentionable($this, options));
+    });
+  };
+
+  $.fn.mentionable.defaults = defaults;
+  $.fn.mentionable.Mentionable = Mentionable;
+});
