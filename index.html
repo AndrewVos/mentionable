@@ -25,16 +25,19 @@
     <textarea id="mentionable-example"></textarea>
     <script>
         var image = "https://pbs.twimg.com/profile_images/451501345455874048/BkSSD7h3_400x400.jpeg";
-        var m = new Mentionable("#mentionable-example", function(query, callback) {
-          setTimeout(function() {
-            callback([
-              {name: "AndrewVos", image: image},
-              {name: "Paul", image: image},
-              {name: "Artem"},
-              {name: "Alec", image: image},
-              {name: "Simon", image: image}
-            ]);
-          }, 40);
+        $(document.body).mentionable({
+          selector: '#mentionable-example',
+          onSearch: function(query, callback) {
+            setTimeout(function() {
+              callback([
+                {name: "AndrewVos", image: image},
+                {name: "Paul", image: image},
+                {name: "Artem"},
+                {name: "Alec", image: image},
+                {name: "Simon", image: image}
+              ]);
+            }, 40);
+          }
         });
     </script>
   </body>
