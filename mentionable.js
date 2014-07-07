@@ -42,14 +42,9 @@
         return;
       }
 
-      this.dropDown.width(element.outerWidth());
-      this.dropDown.css({
-        left: element.offset().left,
-        top: element.offset().top + element.outerHeight()
-      });
       this.dropDown.show();
 
-      $("body").append(this.dropDown);
+      this.element.append(this.dropDown);
       var ul = this.dropDown.find("ul");
       ul.empty();
       this.dropDownSelectedIndex = null;
