@@ -64,7 +64,7 @@
           self.completeCurrentItem(element);
         });
 
-        li.on("mouseenter", function() {
+        li.on("mouseenter.mentionable", function() {
           self.dropDownSelectedIndex = $(this).index();
           self.reshowHighlightedItem();
         });
@@ -139,7 +139,7 @@
     attachEvents: function() {
       var self = this;
 
-      $(document).on("keydown", this.options.selector, function(event) {
+      $(document).on("keydown.mentionable", this.options.selector, function(event) {
         var element = $(event.target);
         if (self.dropDownVisible() == false) {
           return;
@@ -156,7 +156,7 @@
         }
       });
 
-      $(document).on("keyup", this.options.selector, function(event) {
+      $(document).on("keyup.mentionable", this.options.selector, function(event) {
         var element = $(event.target);
         if (event.keyCode == 13 || event.keyCode == 9 || event.keyCode == 38 || event.keyCode == 40) {
           return;
